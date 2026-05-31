@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会チャレンジ！ 5年生</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+  :root {
+    --sky: #0ea5e9;
+    --sun: #fbbf24;
+    --earth: #16a34a;
+    --red: #ef4444;
+    --deep: #0c1a2e;
+    --card: #f0f9ff;
+    --accent: #f97316;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: linear-gradient(160deg, #0c1a2e 0%, #1e3a5f 60%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 10%, rgba(255,255,255,.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 25%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 70%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 80%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 55%, rgba(255,255,255,.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 540px;
+  }
+
+  /* ========== HEADER ========== */
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Kaisei Decol', serif;
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    color: #fff;
+    text-shadow: 0 0 20px rgba(14,165,233,.8), 0 2px 4px rgba(0,0,0,.5);
+    letter-spacing: .05em;
+  }
+  .header .sub {
+    font-size: .85rem;
+    color: #7dd3fc;
+    margin-top: 4px;
+    letter-spacing: .1em;
+  }
+
+  /* ========== STATUS BAR ========== */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 50px;
+    padding: 10px 18px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #e0f2fe;
+    font-size: .85rem;
+    font-weight: 700;
+  }
+  .stat-icon { font-size: 1.1rem; }
+  .stat-val { color: #fbbf24; font-size: 1rem; }
+  .divider { width: 1px; height: 20px; background: rgba(255,255,255,.2); }
+  .progress-wrap { flex: 1; }
+  .progress-bar-bg {
+    height: 8px;
+    background: rgba(255,255,255,.15);
+    border-radius: 50px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), var(--sun));
+    border-radius: 50px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ========== CARD ========== */
+  .card {
+    background: rgba(240,249,255,.96);
+    border-radius: 24px;
+    padding: 28px 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.2);
+    animation: cardIn .35s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(18px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .q-badge {
+    background: var(--sky);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 50px;
+    letter-spacing: .08em;
+  }
+  .q-badge.text-type { background: var(--accent); }
+  .q-num {
+    font-size: .82rem;
+    color: #64748b;
+    margin-left: auto;
+    font-weight: 700;
+  }
+
+  .question-text {
+    font-size: clamp(1rem, 3.5vw, 1.15rem);
+    font-weight: 700;
+    color: #0c1a2e;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  /* 4択 */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    color: #1e293b;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    transition: all .18s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--sky);
+    background: #e0f2fe;
+    transform: translateX(4px);
+  }
+  .choice-btn.correct {
+    border-color: var(--earth);
+    background: #dcfce7;
+    color: var(--earth);
+  }
+  .choice-btn.wrong {
+    border-color: var(--red);
+    background: #fee2e2;
+    color: var(--red);
+  }
+  .choice-btn:disabled { cursor: default; }
+  .choice-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    font-size: .78rem;
+    font-weight: 900;
+    flex-shrink: 0;
+    transition: background .18s;
+  }
+  .choice-btn.correct .choice-label { background: var(--earth); color: #fff; }
+  .choice-btn.wrong .choice-label   { background: var(--red); color: #fff; }
+
+  /* 記述式 */
+  .text-input-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .text-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0c1a2e;
+    outline: none;
+    transition: border-color .18s;
+  }
+  .text-input:focus { border-color: var(--sky); }
+  .text-input.correct { border-color: var(--earth); background: #dcfce7; }
+  .text-input.wrong   { border-color: var(--red); background: #fee2e2; }
+  .submit-btn {
+    padding: 13px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--sky), #0284c7);
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 14px rgba(14,165,233,.4);
+  }
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14,165,233,.5);
+  }
+  .submit-btn:disabled { background: #94a3b8; box-shadow: none; cursor: default; }
+
+  /* フィードバック */
+  .feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback.show { display: block; animation: fadeIn .25s; }
+  .feedback.correct-fb { background: #dcfce7; color: #166534; border-left: 4px solid var(--earth); }
+  .feedback.wrong-fb   { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--red); }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* スキップボタン */
+  .skip-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+    background: transparent;
+    color: #94a3b8;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .skip-btn:hover { background: #f8fafc; border-color: #94a3b8; color: #64748b; }
+  .skip-btn:disabled { opacity: .3; cursor: default; }
+
+  /* ふりがな */
+  .question-text ruby { ruby-align: center; }
+  .question-text rt { font-size: .55em; color: #475569; font-weight: 400; }
+
+  /* おしえてボタン */
+  .teach-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 11px;
+    border: 2px dashed #86efac;
+    border-radius: 14px;
+    background: transparent;
+    color: #16a34a;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .teach-btn:hover:not(:disabled) { background: #f0fdf4; border-color: #16a34a; }
+  .teach-btn:disabled { opacity: .4; cursor: default; }
+
+  .teach-area {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    color: #166534;
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1.8;
+    display: none;
+  }
+  .teach-area.show { display: block; animation: fadeIn .25s; }
+
+  .next-btn {
+    margin-top: 16px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--sun), var(--accent));
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: .05em;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 16px rgba(251,191,36,.4);
+    display: none;
+  }
+  .next-btn.show { display: block; animation: fadeIn .3s .1s both; }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(251,191,36,.5); }
+
+  /* ========== RESULT ========== */
+  .result-screen {
+    display: none;
+    text-align: center;
+    padding: 10px 0;
+  }
+  .result-screen.show { display: block; animation: cardIn .4s; }
+
+  .result-trophy { font-size: 4rem; margin-bottom: 10px; }
+  .result-title {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1.8rem;
+    color: #0c1a2e;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .result-score {
+    font-size: 1rem;
+    color: #475569;
+    margin-bottom: 20px;
+  }
+  .result-score strong { color: var(--earth); font-size: 1.4rem; }
+
+  .point-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--sun), var(--accent));
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 900;
+    padding: 14px 36px;
+    border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(251,191,36,.5);
+    margin-bottom: 24px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
+  }
+
+  .point-note {
+    font-size: .85rem;
+    color: #64748b;
+    margin-bottom: 24px;
+  }
+
+  .restart-btn {
+    padding: 14px 40px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--sky), #0284c7);
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(14,165,233,.4);
+    transition: transform .15s;
+  }
+  .restart-btn:hover { transform: translateY(-2px); }
+
+  /* ========== START SCREEN ========== */
+  .start-screen {
+    text-align: center;
+    padding: 10px 0;
+  }
+  .start-screen .hero-icon { font-size: 4rem; margin-bottom: 12px; }
+  .start-screen h2 {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1.5rem;
+    color: #0c1a2e;
+    margin-bottom: 10px;
+  }
+  .start-screen p {
+    font-size: .9rem;
+    color: #475569;
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .rule-list {
+    text-align: left;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+  }
+  .rule-list li {
+    font-size: .88rem;
+    color: #334155;
+    line-height: 2;
+    list-style: none;
+    padding-left: 4px;
+  }
+  .start-btn {
+    padding: 15px 50px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--sun), var(--accent));
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(251,191,36,.5);
+    letter-spacing: .08em;
+    transition: transform .15s;
+  }
+  .start-btn:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>🗾 社会チャレンジ！</h1>
+    <div class="sub">小学5年生 · 日本の地理・産業・歴史</div>
+  </div>
+
+  <!-- スタート画面 -->
+  <div class="card" id="startScreen">
+    <div class="start-screen">
+      <div class="hero-icon">📚</div>
+      <h2>ルール説明</h2>
+      <ul class="rule-list">
+        <li>🎯 全部で <strong>30問</strong> 出題されます</li>
+        <li>✅ 全問正解すると <strong>50ポイント</strong> もらえます</li>
+        <li>❌ 不正解でも次の問題に進めます</li>
+        <li>⏭ わからない<ruby>問題<rt>もんだい</rt></ruby>はスキップできます</li>
+        <li>📖 「おしえて！」ボタンでやさしく解説してもらえます</li>
+      </ul>
+      <button class="start-btn" onclick="startQuiz()">スタート！</button>
+    </div>
+  </div>
+
+  <!-- クイズ画面 -->
+  <div id="quizArea" style="display:none;">
+    <div class="status-bar">
+      <div class="stat-item">
+        <span class="stat-icon">✅</span>
+        <span>正解</span>
+        <span class="stat-val" id="correctCount">0</span>
+      </div>
+      <div class="divider"></div>
+      <div class="stat-item">
+        <span class="stat-icon">⭐</span>
+        <span>PT</span>
+        <span class="stat-val" id="pointCount">0</span>
+      </div>
+      <div class="divider"></div>
+      <div class="progress-wrap">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val" id="qProgress">0/30</span>
+      </div>
+    </div>
+
+    <div class="card" id="quizCard">
+      <div class="q-meta">
+        <span class="q-badge" id="qTypeBadge">4択</span>
+        <span class="q-num" id="qNumLabel">第 1 問</span>
+      </div>
+      <div class="question-text" id="questionText"></div>
+
+      <!-- 4択 -->
+      <div class="choices" id="choicesArea"></div>
+
+      <!-- 記述 -->
+      <div class="text-input-wrap" id="textInputArea" style="display:none;">
+        <input class="text-input" id="textInput" type="text" placeholder="答えを入力してください" autocomplete="off">
+        <button class="submit-btn" id="submitBtn" onclick="submitText()">答える</button>
+      </div>
+
+      <button class="skip-btn" id="skipBtn" onclick="skipQuestion()">⏭ この問題をスキップする</button>
+      <button class="teach-btn" id="teachBtn" onclick="showTeach()">🙋 おしえて！</button>
+      <div class="teach-area" id="teachArea"></div>
+      <div class="feedback" id="feedbackArea"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">次の問題へ →</button>
+    </div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div class="card" id="resultScreen" style="display:none;">
+    <div class="result-screen show">
+      <div class="result-trophy" id="resultTrophy">🏆</div>
+      <div class="result-title" id="resultTitle">おめでとう！</div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="point-badge" id="pointBadge">＋50 ポイント！</div>
+      <div class="point-note" id="pointNote"></div>
+      <button class="restart-btn" onclick="restartQuiz()">もう一度チャレンジ！</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // ===== 4択 =====
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>で一番<ruby>長<rt>なが</rt></ruby>い<ruby>川<rt>かわ</rt></ruby>はどれですか？', choices:['<ruby>信濃川<rt>しなのがわ</rt></ruby>','<ruby>利根川<rt>とねがわ</rt></ruby>','<ruby>木曽川<rt>きそがわ</rt></ruby>','<ruby>石狩川<rt>いしかりがわ</rt></ruby>'], ans:0, explain:'日本でいちばん長い川は「信濃川（しなのがわ）」だよ！長野県から新潟県を通って日本海に流れているんだ。全長は367kmもあるよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>農業<rt>のうぎょう</rt></ruby>で、<ruby>稲作<rt>いなさく</rt></ruby>がもっとも<ruby>多<rt>おお</rt></ruby>く<ruby>行<rt>おこな</rt></ruby>われている<ruby>地方<rt>ちほう</rt></ruby>はどこですか？', choices:['<ruby>関東地方<rt>かんとうちほう</rt></ruby>','<ruby>東北地方<rt>とうほくちほう</rt></ruby>','<ruby>中部地方<rt>ちゅうぶちほう</rt></ruby>','<ruby>九州地方<rt>きゅうしゅうちほう</rt></ruby>'], ans:1, explain:'お米づくりがさかんなのは「東北地方（とうほくちほう）」だよ！秋田県・山形県・宮城県などが有名で、「米どころ」ってよばれているんだ。夏に雨が多くて、お米を育てるのにぴったりな気候なんだよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>食料自給率<rt>しょくりょうじきゅうりつ</rt></ruby>（カロリーベース）はおおよそ何%ですか？', choices:['<ruby>約<rt>やく</rt></ruby>90%','<ruby>約<rt>やく</rt></ruby>70%','<ruby>約<rt>やく</rt></ruby>38%','<ruby>約<rt>やく</rt></ruby>10%'], ans:2, explain:'「食料自給率（しょくりょうじきゅうりつ）」とは、食べ物をどのくらい自分の国で作れているかを表した数字だよ。日本は約38%で、食べ物の半分以上を外国から輸入（ゆにゅう）しているんだ。これは先進国の中でもとても低い数字なんだよ。' },
+  { type:'choice', q:'<ruby>北海道<rt>ほっかいどう</rt></ruby>の<ruby>農業<rt>のうぎょう</rt></ruby>でもっとも<ruby>有名<rt>ゆうめい</rt></ruby>な<ruby>農産物<rt>のうさんぶつ</rt></ruby>は何ですか？', choices:['みかん','じゃがいも・<ruby>乳製品<rt>にゅうせいひん</rt></ruby>','りんご','<ruby>茶<rt>ちゃ</rt></ruby>'], ans:1, explain:'北海道は日本でいちばん広い土地があるよ。その広い土地を使って、じゃがいも・とうもろこし・大豆などの畑作と、牛を育てる酪農（らくのう）がさかんなんだ。だからバターやチーズなどの乳製品（にゅうせいひん）も北海道が有名だよ！' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>工業<rt>こうぎょう</rt></ruby>で「<ruby>中京工業地帯<rt>ちゅうきょうこうぎょうちたい</rt></ruby>」がある<ruby>都市<rt>とし</rt></ruby>はどこですか？', choices:['<ruby>大阪<rt>おおさか</rt></ruby>','<ruby>名古屋<rt>なごや</rt></ruby>','<ruby>広島<rt>ひろしま</rt></ruby>','<ruby>福岡<rt>ふくおか</rt></ruby>'], ans:1, explain:'「中京工業地帯（ちゅうきょうこうぎょうちたい）」は愛知県の名古屋市を中心とした工業地帯だよ。自動車（じどうしゃ）を作る工場がとても多く、日本でいちばん生産額が大きい工業地帯なんだ！' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>周<rt>まわ</rt></ruby>りを<ruby>流<rt>なが</rt></ruby>れる<ruby>暖<rt>あたた</rt></ruby>かい<ruby>海流<rt>かいりゅう</rt></ruby>で、<ruby>黒潮<rt>くろしお</rt></ruby>とも<ruby>呼<rt>よ</rt></ruby>ばれるのはどれですか？', choices:['<ruby>親潮<rt>おやしお</rt></ruby>（<ruby>千島海流<rt>ちしまかいりゅう</rt></ruby>）','<ruby>日本海流<rt>にほんかいりゅう</rt></ruby>（<ruby>黒潮<rt>くろしお</rt></ruby>）','リマン<ruby>海流<rt>かいりゅう</rt></ruby>','<ruby>対馬海流<rt>つしまかいりゅう</rt></ruby>'], ans:1, explain:'「黒潮（くろしお）」は太平洋を流れる暖かい海流だよ。正式な名前は「日本海流（にほんかいりゅう）」というんだ。暖かくて魚のえさになるプランクトンが多いから、魚がたくさん集まるんだよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>国土面積<rt>こくどめんせき</rt></ruby>はおよそ何万km²ですか？', choices:['<ruby>約<rt>やく</rt></ruby>18万km²','<ruby>約<rt>やく</rt></ruby>38万km²','<ruby>約<rt>やく</rt></ruby>58万km²','<ruby>約<rt>やく</rt></ruby>78万km²'], ans:1, explain:'日本の国土（こくど）の広さは約38万km²だよ。北海道から沖縄まで細長くのびている島国（しまぐに）なんだ。世界には200近い国があるけど、日本は面積で約60番目くらいの大きさだよ。' },
+  { type:'choice', q:'<ruby>沖縄<rt>おきなわ</rt></ruby>でよく<ruby>見<rt>み</rt></ruby>られる、<ruby>強<rt>つよ</rt></ruby>い<ruby>台風<rt>たいふう</rt></ruby>に<ruby>備<rt>そな</rt></ruby>えた<ruby>伝統的<rt>でんとうてき</rt></ruby>な<ruby>石垣<rt>いしがき</rt></ruby>の<ruby>家<rt>いえ</rt></ruby>の<ruby>屋根<rt>やね</rt></ruby>のまわりの<ruby>低<rt>ひく</rt></ruby>い<ruby>壁<rt>かべ</rt></ruby>を何といいますか？', choices:['<ruby>石塀<rt>いしべい</rt></ruby>','<ruby>雨戸<rt>あまど</rt></ruby>','<ruby>雪止<rt>ゆきど</rt></ruby>め','<ruby>風<rt>かぜ</rt></ruby>よけ<ruby>壁<rt>かべ</rt></ruby>'], ans:0, explain:'沖縄は台風（たいふう）がよく来る地域だよ。だから家の周りにサンゴ礁（しょう）の石を積んで「石塀（いしべい）」を作り、強い風から家を守るんだ。昔からの知恵（ちえ）で作られた沖縄らしい建物のとくちょうだよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>漁業<rt>ぎょぎょう</rt></ruby>で「<ruby>遠洋漁業<rt>えんようぎょぎょう</rt></ruby>」が<ruby>行<rt>おこな</rt></ruby>われる<ruby>場所<rt>ばしょ</rt></ruby>はどこですか？', choices:['<ruby>海岸<rt>かいがん</rt></ruby><ruby>近<rt>ちか</rt></ruby>く','<ruby>川<rt>かわ</rt></ruby>や<ruby>湖<rt>みずうみ</rt></ruby>','<ruby>世界中<rt>せかいじゅう</rt></ruby>の<ruby>遠<rt>とお</rt></ruby>い<ruby>海<rt>うみ</rt></ruby>','<ruby>港<rt>みなと</rt></ruby>のすぐそば'], ans:2, explain:'「遠洋漁業（えんようぎょぎょう）」は、日本からはるか遠い世界の海まで船で出かけて魚を取る漁業だよ。マグロやカツオなどを取ることが多いんだ。でも燃料代（ねんりょうだい）が高いから、最近はだんだん少なくなっているよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>伝統的<rt>でんとうてき</rt></ruby>な<ruby>工芸品<rt>こうげいひん</rt></ruby>「<ruby>西陣織<rt>にしじんおり</rt></ruby>」はどこで<ruby>作<rt>つく</rt></ruby>られますか？', choices:['<ruby>東京<rt>とうきょう</rt></ruby>','<ruby>大阪<rt>おおさか</rt></ruby>','<ruby>京都<rt>きょうと</rt></ruby>','<ruby>名古屋<rt>なごや</rt></ruby>'], ans:2, explain:'「西陣織（にしじんおり）」は京都府の伝統的な絹（きぬ）の織物（おりもの）だよ。室町時代（むろまちじだい）から500年以上続く高級品なんだ。着物（きもの）や帯（おび）に使われることが多いよ。' },
+  { type:'choice', q:'<ruby>温暖<rt>おんだん</rt></ruby>な<ruby>気候<rt>きこう</rt></ruby>を<ruby>利用<rt>りよう</rt></ruby>して<ruby>野菜<rt>やさい</rt></ruby>や<ruby>果物<rt>くだもの</rt></ruby>の<ruby>出荷<rt>しゅっか</rt></ruby><ruby>時期<rt>じき</rt></ruby>を<ruby>早<rt>はや</rt></ruby>める<ruby>栽培<rt>さいばい</rt></ruby><ruby>方法<rt>ほうほう</rt></ruby>を何といいますか？', choices:['<ruby>抑制栽培<rt>よくせいさいばい</rt></ruby>','<ruby>促成栽培<rt>そくせいさいばい</rt></ruby>','<ruby>水耕栽培<rt>すいこうさいばい</rt></ruby>','<ruby>有機栽培<rt>ゆうきさいばい</rt></ruby>'], ans:1, explain:'「促成栽培（そくせいさいばい）」は、温かい気候やビニールハウスを使って、ふつうより早い時期に野菜や果物を育てる方法だよ。高知県や宮崎県でよく行われているんだ。早く出荷できると値段が高くなるので農家さんにとって有利なんだよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>が<ruby>地震<rt>じしん</rt></ruby>や<ruby>火山<rt>かざん</rt></ruby>が<ruby>多<rt>おお</rt></ruby>い<ruby>理由<rt>りゆう</rt></ruby>として<ruby>正<rt>ただ</rt></ruby>しいのはどれですか？', choices:['<ruby>大陸<rt>たいりく</rt></ruby>の<ruby>中心<rt>ちゅうしん</rt></ruby>にある','<ruby>海溝<rt>かいこう</rt></ruby><ruby>付近<rt>ふきん</rt></ruby>でプレートがぶつかるから','<ruby>赤道<rt>せきどう</rt></ruby>に<ruby>近<rt>ちか</rt></ruby>いから','<ruby>海<rt>うみ</rt></ruby>がない<ruby>内陸国<rt>ないりくこく</rt></ruby>だから'], ans:1, explain:'地球の表面は「プレート」というかたまりでできているよ。日本の周りには4つのプレートがあって、それらがぶつかり合う場所に日本があるんだ。だから地震（じしん）や火山（かざん）がとても多いんだよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>三大工業地帯<rt>さんだいこうぎょうちたい</rt></ruby>のうち、<ruby>大阪<rt>おおさか</rt></ruby>を<ruby>中心<rt>ちゅうしん</rt></ruby>としたものを何といいますか？', choices:['<ruby>阪神工業地帯<rt>はんしんこうぎょうちたい</rt></ruby>','<ruby>京浜工業地帯<rt>けいひんこうぎょうちたい</rt></ruby>','<ruby>中京工業地帯<rt>ちゅうきょうこうぎょうちたい</rt></ruby>','<ruby>北九州工業地帯<rt>きたきゅうしゅうこうぎょうちたい</rt></ruby>'], ans:0, explain:'「阪神工業地帯（はんしんこうぎょうちたい）」は大阪府・兵庫県を中心とした工業地帯だよ。鉄鋼（てっこう）や化学（かがく）工業がさかんなんだ。「阪神（はんしん）」は「大阪（阪）と神戸（神）」を合わせた名前だよ。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>米<rt>こめ</rt></ruby>の<ruby>生産量<rt>せいさんりょう</rt></ruby>が<ruby>全国<rt>ぜんこく</rt></ruby>1<ruby>位<rt>い</rt></ruby>の<ruby>都道府県<rt>とどうふけん</rt></ruby>はどこですか？', choices:['<ruby>新潟県<rt>にいがたけん</rt></ruby>','<ruby>秋田県<rt>あきたけん</rt></ruby>','<ruby>北海道<rt>ほっかいどう</rt></ruby>','<ruby>山形県<rt>やまがたけん</rt></ruby>'], ans:0, explain:'お米の生産量が日本一なのは「新潟県（にいがたけん）」だよ！「コシヒカリ」という品種（ひんしゅ）が有名で、日本全国で食べられているんだ。雪解け水（ゆきどけみず）がきれいで、お米づくりにぴったりな環境なんだよ。' },
+  { type:'choice', q:'「<ruby>南<rt>みなみ</rt></ruby>アルプス」は<ruby>正式<rt>せいしき</rt></ruby>に何<ruby>山脈<rt>さんみゃく</rt></ruby>ですか？', choices:['<ruby>飛騨山脈<rt>ひださんみゃく</rt></ruby>','<ruby>木曽山脈<rt>きそさんみゃく</rt></ruby>','<ruby>赤石山脈<rt>あかいしさんみゃく</rt></ruby>','<ruby>奥羽山脈<rt>おううさんみゃく</rt></ruby>'], ans:2, explain:'「南アルプス」の正式名称は「赤石山脈（あかいしさんみゃく）」だよ。静岡県・長野県・山梨県にまたがる山脈で、3000m級の山がたくさんあるんだ。「北アルプス＝飛騨山脈」「中央アルプス＝木曽山脈」もいっしょに覚えておこう！' },
+  // ===== 記述 =====
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>でいちばん<ruby>高<rt>たか</rt></ruby>い<ruby>山<rt>やま</rt></ruby>の<ruby>名前<rt>なまえ</rt></ruby>を<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['富士山','ふじさん','フジサン'], explain:'日本でいちばん高い山は「富士山（ふじさん）」だよ！高さは3776mで、静岡県と山梨県の境（さかい）にあるんだ。世界遺産（せかいいさん）にも登録されていて、外国の人にも大人気なんだよ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>首都<rt>しゅと</rt></ruby>はどこですか？', ans:['東京','とうきょう','トウキョウ','東京都'], explain:'日本の首都（しゅと）は「東京（とうきょう）」だよ！首都とは、国の政治（せいじ）や経済（けいざい）の中心となる都市のことだよ。国会（こっかい）や内閣（ないかく）など国の大事な機関がたくさんあるんだ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>都道府県<rt>とどうふけん</rt></ruby>の<ruby>数<rt>かず</rt></ruby>は<ruby>全部<rt>ぜんぶ</rt></ruby>でいくつですか？<ruby>数字<rt>すうじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['47'], explain:'日本には全部で「47」の都道府県があるよ！1つの「都（と）＝東京都」、1つの「道（どう）＝北海道」、2つの「府（ふ）＝大阪府・京都府」、43の「県（けん）」で合わせて47なんだ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>でいちばん<ruby>大<rt>おお</rt></ruby>きい<ruby>湖<rt>みずうみ</rt></ruby>の<ruby>名前<rt>なまえ</rt></ruby>を<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['琵琶湖','びわこ','ビワコ'], explain:'日本でいちばん大きい湖は「琵琶湖（びわこ）」だよ！滋賀県（しがけん）にあって、面積は約670km²もあるんだ。近くに住む人たちの飲み水としても使われている大切な湖だよ。' },
+  { type:'text', q:'<ruby>同<rt>おな</rt></ruby>じ<ruby>田畑<rt>たはた</rt></ruby>で1<ruby>年<rt>ねん</rt></ruby>に2<ruby>回<rt>かい</rt></ruby><ruby>作物<rt>さくもの</rt></ruby>をつくることを何といいますか？', ans:['二期作','にきさく'], explain:'同じ田んぼや畑で1年に2回作物を育てることを「二期作（にきさく）」というよ！お米を1年に2回収かくするんだ。1年中暖かい高知県などで行われているよ。1つの畑で2種類の違う作物を育てることは「二毛作（にもうさく）」というので、ちがいを覚えておこう！' },
+  { type:'text', q:'<ruby>工場<rt>こうじょう</rt></ruby>から<ruby>出<rt>で</rt></ruby>る<ruby>煙<rt>けむり</rt></ruby>や<ruby>水<rt>みず</rt></ruby>が<ruby>原因<rt>げんいん</rt></ruby>で<ruby>起<rt>お</rt></ruby>きる<ruby>環境問題<rt>かんきょうもんだい</rt></ruby>を<ruby>漢字<rt>かんじ</rt></ruby>2<ruby>文字<rt>もじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['公害'], explain:'工場や車などから出る煙や汚れた水によって、人の体や自然が傷つけられることを「公害（こうがい）」というよ！日本では1960〜70年代に「四大公害病（よんだいこうがいびょう）」というひどい病気が起きたんだ。今は法律（ほうりつ）で厳しく守られているよ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>で一番<ruby>人口<rt>じんこう</rt></ruby>が<ruby>多<rt>おお</rt></ruby>い<ruby>都市<rt>とし</rt></ruby>はどこですか？', ans:['東京','東京都','とうきょう'], explain:'日本でいちばん人口（じんこう）が多いのは「東京（とうきょう）」だよ！約1400万人が住んでいて、世界でもトップクラスの大都市なんだ。周りの神奈川・埼玉・千葉を合わせた「首都圏（しゅとけん）」には約3500万人も住んでいるよ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>川<rt>かわ</rt></ruby>は<ruby>外国<rt>がいこく</rt></ruby>の<ruby>川<rt>かわ</rt></ruby>と<ruby>比<rt>くら</rt></ruby>べて「<ruby>短<rt>みじか</rt></ruby>くて（　　）」といわれます。（　　）に<ruby>入<rt>はい</rt></ruby>る<ruby>言葉<rt>ことば</rt></ruby>を<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['急','急流','急な','けわしい','流れが急'], explain:'日本の川は「短くて急（みじかくてきゅう）」なのがとくちょうだよ！日本は山がちで、山から海までの距離が短いから、川がとても速く流れるんだ。ヨーロッパのライン川やアマゾン川などに比べると、ずっと短くて急な川が多いよ。' },
+  { type:'text', q:'<ruby>田<rt>た</rt></ruby>んぼに<ruby>水<rt>みず</rt></ruby>を<ruby>引<rt>ひ</rt></ruby>くための<ruby>施設<rt>しせつ</rt></ruby>を<ruby>漢字<rt>かんじ</rt></ruby>2<ruby>文字<rt>もじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['水路','すいろ'], explain:'田んぼに水を引くための溝（みぞ）のことを「水路（すいろ）」というよ！お米は育つときにたくさんの水が必要だから、川から水路を通して田んぼに水を引くんだ。昔の人が作った水路が今でも使われている地域もあるよ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>国土<rt>こくど</rt></ruby>の<ruby>約<rt>やく</rt></ruby>何<ruby>分<rt>ぶん</rt></ruby>の2が<ruby>森林<rt>しんりん</rt></ruby>ですか？「<ruby>約<rt>やく</rt></ruby>○<ruby>分<rt>ぶん</rt></ruby>の○」の<ruby>形<rt>かたち</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['約3分の2','3分の2'], explain:'日本の国土の約「3分の2（さんぶんのに）」が森林（しんりん）だよ！つまりほぼ67%が森や木でおおわれているんだ。これは世界の中でもとても高い割合なんだよ。森林は水をたくわえたり、空気をきれいにする大切な役割があるんだ。' },
+  { type:'text', q:'<ruby>北海道<rt>ほっかいどう</rt></ruby>や<ruby>東北地方<rt>とうほくちほう</rt></ruby>の<ruby>夏<rt>なつ</rt></ruby>に、<ruby>太平洋側<rt>たいへいようがわ</rt></ruby>から<ruby>吹<rt>ふ</rt></ruby>いてくる<ruby>冷<rt>つめ</rt></ruby>たく<ruby>湿<rt>しめ</rt></ruby>った<ruby>風<rt>かぜ</rt></ruby>を何といいますか？', ans:['やませ','ヤマセ'], explain:'「やませ」は夏に北海道や東北地方の太平洋側に吹いてくる冷たくて湿った風だよ。この風が吹くと気温が上がらず、お米などの農作物（のうさくもつ）がうまく育たないことがあるんだ。これを「冷害（れいがい）」というよ。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>太平洋側<rt>たいへいようがわ</rt></ruby>に<ruby>多<rt>おお</rt></ruby>く<ruby>降<rt>ふ</rt></ruby>る<ruby>雨<rt>あめ</rt></ruby>は、<ruby>主<rt>おも</rt></ruby>にどの<ruby>季節<rt>きせつ</rt></ruby>ですか？', ans:['夏','なつ'], explain:'太平洋側では「夏（なつ）」に雨がたくさん降るよ！梅雨（つゆ）や台風（たいふう）の影響で、6月〜9月ごろは雨が多くなるんだ。逆に日本海側は冬に雪がたくさん降るよ。これは季節風（きせつふう）の影響なんだ。' },
+  { type:'text', q:'<ruby>産業<rt>さんぎょう</rt></ruby>の<ruby>中心<rt>ちゅうしん</rt></ruby>が<ruby>工業<rt>こうぎょう</rt></ruby>から<ruby>情報<rt>じょうほう</rt></ruby>・サービス<ruby>業<rt>ぎょう</rt></ruby>に<ruby>変化<rt>へんか</rt></ruby>することを<ruby>漢字<rt>かんじ</rt></ruby>4<ruby>文字<rt>もじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['産業の高度化','産業高度化','サービス化','高度化'], explain:'昔の日本は工場でものを作る「工業（こうぎょう）」が中心だったけど、今はコンピューターや情報（じょうほう）を使ったサービス業が中心になってきているよ。これを「産業の高度化（さんぎょうのこうどか）」というんだ。第三次産業（だいさんじさんぎょう）の割合がふえているよ。' },
+  { type:'text', q:'<ruby>米<rt>こめ</rt></ruby>づくりで、<ruby>苗<rt>なえ</rt></ruby>を<ruby>田<rt>た</rt></ruby>んぼに<ruby>移<rt>うつ</rt></ruby>すことを何といいますか？', ans:['田植え','田植','たうえ'], explain:'小さく育てた稲（いね）の苗（なえ）を田んぼに移して植えることを「田植え（たうえ）」というよ！毎年5〜6月ごろに行われる大事な農作業なんだ。昔は手で1本1本植えていたけど、今は機械を使うことが多いよ。' },
+  { type:'text', q:'「<ruby>奥羽山脈<rt>おううさんみゃく</rt></ruby>」があるのは何<ruby>地方<rt>ちほう</rt></ruby>ですか？', ans:['東北地方','東北','とうほく'], explain:'「奥羽山脈（おううさんみゃく）」は東北地方にある日本でいちばん長い山脈だよ！青森県から栃木県まで続いていて、東北地方を東西に分けているんだ。この山脈の西側と東側では、気候（きこう）がかなり違うんだよ。' },
+];
+  // ===== 4択 =====
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>で一番<ruby>長<rt>なが</rt></ruby>い<ruby>川<rt>かわ</rt></ruby>はどれですか？', choices:['<ruby>信濃川<rt>しなのがわ</rt></ruby>','<ruby>利根川<rt>とねがわ</rt></ruby>','<ruby>木曽川<rt>きそがわ</rt></ruby>','<ruby>石狩川<rt>いしかりがわ</rt></ruby>'], ans:0, hint:'長野・新潟を流れ、全長367kmです。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>農業<rt>のうぎょう</rt></ruby>で、<ruby>稲作<rt>いなさく</rt></ruby>がもっとも多く<ruby>行<rt>おこな</rt></ruby>われている<ruby>地方<rt>ちほう</rt></ruby>はどこですか？', choices:['<ruby>関東地方<rt>かんとうちほう</rt></ruby>','<ruby>東北地方<rt>とうほくちほう</rt></ruby>','<ruby>中部地方<rt>ちゅうぶちほう</rt></ruby>','<ruby>九州地方<rt>きゅうしゅうちほう</rt></ruby>'], ans:1, hint:'「米どころ」として有名な秋田・山形・宮城があります。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>食料自給率<rt>しょくりょうじきゅうりつ</rt></ruby>（カロリーベース）はおおよそ何%ですか？', choices:['<ruby>約<rt>やく</rt></ruby>90%','<ruby>約<rt>やく</rt></ruby>70%','<ruby>約<rt>やく</rt></ruby>38%','<ruby>約<rt>やく</rt></ruby>10%'], ans:2, hint:'先進国の中でも低い水準で、問題となっています。' },
+  { type:'choice', q:'<ruby>北海道<rt>ほっかいどう</rt></ruby>の<ruby>農業<rt>のうぎょう</rt></ruby>でもっとも<ruby>有名<rt>ゆうめい</rt></ruby>な<ruby>農産物<rt>のうさんぶつ</rt></ruby>は何ですか？', choices:['みかん','じゃがいも・<ruby>乳製品<rt>にゅうせいひん</rt></ruby>','りんご','<ruby>茶<rt>ちゃ</rt></ruby>'], ans:1, hint:'広大な土地を活かした畑作・酪農が盛んです。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>工業<rt>こうぎょう</rt></ruby>で「<ruby>中京工業地帯<rt>ちゅうきょうこうぎょうちたい</rt></ruby>」がある<ruby>都市<rt>とし</rt></ruby>はどこですか？', choices:['<ruby>大阪<rt>おおさか</rt></ruby>','<ruby>名古屋<rt>なごや</rt></ruby>','<ruby>広島<rt>ひろしま</rt></ruby>','<ruby>福岡<rt>ふくおか</rt></ruby>'], ans:1, hint:'自動車工業が中心で、日本最大の工業地帯です。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>周<rt>まわ</rt></ruby>りを<ruby>流<rt>なが</rt></ruby>れる<ruby>暖<rt>あたた</rt></ruby>かい<ruby>海流<rt>かいりゅう</rt></ruby>で、<ruby>黒潮<rt>くろしお</rt></ruby>とも<ruby>呼<rt>よ</rt></ruby>ばれるのはどれですか？', choices:['<ruby>親潮<rt>おやしお</rt></ruby>（<ruby>千島海流<rt>ちしまかいりゅう</rt></ruby>）','<ruby>日本海流<rt>にほんかいりゅう</rt></ruby>（<ruby>黒潮<rt>くろしお</rt></ruby>）','リマン<ruby>海流<rt>かいりゅう</rt></ruby>','<ruby>対馬海流<rt>つしまかいりゅう</rt></ruby>'], ans:1, hint:'太平洋側を北上し、魚が豊富です。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>国土面積<rt>こくどめんせき</rt></ruby>はおよそ何万km²ですか？', choices:['<ruby>約<rt>やく</rt></ruby>18万km²','<ruby>約<rt>やく</rt></ruby>38万km²','<ruby>約<rt>やく</rt></ruby>58万km²','<ruby>約<rt>やく</rt></ruby>78万km²'], ans:1, hint:'北方領土を含めるとこの面積になります。' },
+  { type:'choice', q:'<ruby>沖縄<rt>おきなわ</rt></ruby>でよく<ruby>見<rt>み</rt></ruby>られる、<ruby>強<rt>つよ</rt></ruby>い<ruby>台風<rt>たいふう</rt></ruby>に<ruby>備<rt>そな</rt></ruby>えた<ruby>伝統的<rt>でんとうてき</rt></ruby>な<ruby>石垣<rt>いしがき</rt></ruby>の<ruby>家<rt>いえ</rt></ruby>の<ruby>屋根<rt>やね</rt></ruby>のまわりの<ruby>低<rt>ひく</rt></ruby>い<ruby>壁<rt>かべ</rt></ruby>を何といいますか？', choices:['<ruby>石塀<rt>いしべい</rt></ruby>','<ruby>雨戸<rt>あまど</rt></ruby>','<ruby>雪止<rt>ゆきど</rt></ruby>め','<ruby>風<rt>かぜ</rt></ruby>よけ<ruby>壁<rt>かべ</rt></ruby>'], ans:0, hint:'サンゴ礁の石で作られ、家を守ります。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>漁業<rt>ぎょぎょう</rt></ruby>で「<ruby>遠洋漁業<rt>えんようぎょぎょう</rt></ruby>」が<ruby>行<rt>おこな</rt></ruby>われる<ruby>場所<rt>ばしょ</rt></ruby>はどこですか？', choices:['<ruby>海岸<rt>かいがん</rt></ruby><ruby>近<rt>ちか</rt></ruby>く','<ruby>川<rt>かわ</rt></ruby>や<ruby>湖<rt>みずうみ</rt></ruby>','<ruby>世界中<rt>せかいじゅう</rt></ruby>の<ruby>遠<rt>とお</rt></ruby>い<ruby>海<rt>うみ</rt></ruby>','<ruby>港<rt>みなと</rt></ruby>のすぐそば'], ans:2, hint:'燃料費が高く、近年は減少しています。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>伝統的<rt>でんとうてき</rt></ruby>な<ruby>工芸品<rt>こうげいひん</rt></ruby>「<ruby>西陣織<rt>にしじんおり</rt></ruby>」はどこで<ruby>作<rt>つく</rt></ruby>られますか？', choices:['<ruby>東京<rt>とうきょう</rt></ruby>','<ruby>大阪<rt>おおさか</rt></ruby>','<ruby>京都<rt>きょうと</rt></ruby>','<ruby>名古屋<rt>なごや</rt></ruby>'], ans:2, hint:'室町時代から続く高級絹織物です。' },
+  { type:'choice', q:'<ruby>温暖<rt>おんだん</rt></ruby>な<ruby>気候<rt>きこう</rt></ruby>を<ruby>利用<rt>りよう</rt></ruby>して<ruby>野菜<rt>やさい</rt></ruby>や<ruby>果物<rt>くだもの</rt></ruby>の<ruby>出荷<rt>しゅっか</rt></ruby><ruby>時期<rt>じき</rt></ruby>を<ruby>早<rt>はや</rt></ruby>める<ruby>栽培<rt>さいばい</rt></ruby><ruby>方法<rt>ほうほう</rt></ruby>を何といいますか？', choices:['<ruby>抑制栽培<rt>よくせいさいばい</rt></ruby>','<ruby>促成栽培<rt>そくせいさいばい</rt></ruby>','<ruby>水耕栽培<rt>すいこうさいばい</rt></ruby>','<ruby>有機栽培<rt>ゆうきさいばい</rt></ruby>'], ans:1, hint:'高知・宮崎などで多く行われています。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>が<ruby>地震<rt>じしん</rt></ruby>や<ruby>火山<rt>かざん</rt></ruby>が<ruby>多<rt>おお</rt></ruby>い<ruby>理由<rt>りゆう</rt></ruby>として<ruby>正<rt>ただ</rt></ruby>しいのはどれですか？', choices:['<ruby>大陸<rt>たいりく</rt></ruby>の<ruby>中心<rt>ちゅうしん</rt></ruby>にある','<ruby>海溝<rt>かいこう</rt></ruby><ruby>付近<rt>ふきん</rt></ruby>でプレートがぶつかるから','<ruby>赤道<rt>せきどう</rt></ruby>に<ruby>近<rt>ちか</rt></ruby>いから','<ruby>海<rt>うみ</rt></ruby>がない<ruby>内陸国<rt>ないりくこく</rt></ruby>だから'], ans:1, hint:'4つのプレートが日本の周りで動いています。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>三大工業地帯<rt>さんだいこうぎょうちたい</rt></ruby>のうち、<ruby>大阪<rt>おおさか</rt></ruby>を<ruby>中心<rt>ちゅうしん</rt></ruby>としたものを何といいますか？', choices:['<ruby>阪神工業地帯<rt>はんしんこうぎょうちたい</rt></ruby>','<ruby>京浜工業地帯<rt>けいひんこうぎょうちたい</rt></ruby>','<ruby>中京工業地帯<rt>ちゅうきょうこうぎょうちたい</rt></ruby>','<ruby>北九州工業地帯<rt>きたきゅうしゅうこうぎょうちたい</rt></ruby>'], ans:0, hint:'化学・金属工業が中心です。' },
+  { type:'choice', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>米<rt>こめ</rt></ruby>の<ruby>生産量<rt>せいさんりょう</rt></ruby>が<ruby>全国<rt>ぜんこく</rt></ruby>1<ruby>位<rt>い</rt></ruby>の<ruby>都道府県<rt>とどうふけん</rt></ruby>はどこですか？', choices:['<ruby>新潟県<rt>にいがたけん</rt></ruby>','<ruby>秋田県<rt>あきたけん</rt></ruby>','<ruby>北海道<rt>ほっかいどう</rt></ruby>','<ruby>山形県<rt>やまがたけん</rt></ruby>'], ans:0, hint:'「コシヒカリ」の産地として有名です。' },
+  { type:'choice', q:'「<ruby>南<rt>みなみ</rt></ruby>アルプス」は<ruby>正式<rt>せいしき</rt></ruby>に何<ruby>山脈<rt>さんみゃく</rt></ruby>ですか？', choices:['<ruby>飛騨山脈<rt>ひださんみゃく</rt></ruby>','<ruby>木曽山脈<rt>きそさんみゃく</rt></ruby>','<ruby>赤石山脈<rt>あかいしさんみゃく</rt></ruby>','<ruby>奥羽山脈<rt>おううさんみゃく</rt></ruby>'], ans:2, hint:'静岡・長野・山梨にまたがります。' },
+  // ===== 記述 =====
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>でいちばん<ruby>高<rt>たか</rt></ruby>い<ruby>山<rt>やま</rt></ruby>の<ruby>名前<rt>なまえ</rt></ruby>を<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['富士山','ふじさん','フジサン'], hint:'標高3776m。静岡県と山梨県にあります。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>首都<rt>しゅと</rt></ruby>はどこですか？', ans:['東京','とうきょう','トウキョウ','東京都'], hint:'政治・経済・文化の中心地です。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>都道府県<rt>とどうふけん</rt></ruby>の<ruby>数<rt>かず</rt></ruby>は<ruby>全部<rt>ぜんぶ</rt></ruby>でいくつですか？<ruby>数字<rt>すうじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['47'], hint:'1都・1道・2府・43県です。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>でいちばん<ruby>大<rt>おお</rt></ruby>きい<ruby>湖<rt>みずうみ</rt></ruby>の<ruby>名前<rt>なまえ</rt></ruby>を<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['琵琶湖','びわこ','ビワコ'], hint:'滋賀県にあり、面積約670km²です。' },
+  { type:'text', q:'<ruby>同<rt>おな</rt></ruby>じ<ruby>田畑<rt>たはた</rt></ruby>で1<ruby>年<rt>ねん</rt></ruby>に2<ruby>回<rt>かい</rt></ruby><ruby>作物<rt>さくもの</rt></ruby>をつくることを何といいますか？', ans:['二期作','にきさく'], hint:'温暖な地域で行われ、お米を2回育てることが多いです。' },
+  { type:'text', q:'<ruby>工場<rt>こうじょう</rt></ruby>から<ruby>出<rt>で</rt></ruby>る<ruby>煙<rt>けむり</rt></ruby>や<ruby>水<rt>みず</rt></ruby>が<ruby>原因<rt>げんいん</rt></ruby>で<ruby>起<rt>お</rt></ruby>きる<ruby>環境問題<rt>かんきょうもんだい</rt></ruby>を<ruby>漢字<rt>かんじ</rt></ruby>2<ruby>文字<rt>もじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['公害'], hint:'1960〜70年代に日本各地で深刻になりました。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>で一番<ruby>人口<rt>じんこう</rt></ruby>が<ruby>多<rt>おお</rt></ruby>い<ruby>都市<rt>とし</rt></ruby>はどこですか？', ans:['東京','東京都','とうきょう'], hint:'約1400万人が住んでいます。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>川<rt>かわ</rt></ruby>は<ruby>外国<rt>がいこく</rt></ruby>の<ruby>川<rt>かわ</rt></ruby>と<ruby>比<rt>くら</rt></ruby>べて「<ruby>短<rt>みじか</rt></ruby>くて（　　）」といわれます。（　　）に<ruby>入<rt>はい</rt></ruby>る<ruby>言葉<rt>ことば</rt></ruby>を<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['急','急流','急な','けわしい','流れが急'], hint:'山地が多く、海まで距離が短いためです。' },
+  { type:'text', q:'<ruby>田<rt>た</rt></ruby>んぼに<ruby>水<rt>みず</rt></ruby>を<ruby>引<rt>ひ</rt></ruby>くための<ruby>施設<rt>しせつ</rt></ruby>を<ruby>漢字<rt>かんじ</rt></ruby>2<ruby>文字<rt>もじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['水路','すいろ'], hint:'農業用水を運ぶための溝です。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>国土<rt>こくど</rt></ruby>の<ruby>約<rt>やく</rt></ruby>何<ruby>分<rt>ぶん</rt></ruby>の2が<ruby>森林<rt>しんりん</rt></ruby>ですか？「<ruby>約<rt>やく</rt></ruby>○<ruby>分<rt>ぶん</rt></ruby>の○」の<ruby>形<rt>かたち</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['約3分の2','3分の2'], hint:'約67%が森林で、世界的にも高い水準です。' },
+  { type:'text', q:'<ruby>北海道<rt>ほっかいどう</rt></ruby>や<ruby>東北地方<rt>とうほくちほう</rt></ruby>の<ruby>夏<rt>なつ</rt></ruby>に、<ruby>太平洋側<rt>たいへいようがわ</rt></ruby>から<ruby>吹<rt>ふ</rt></ruby>いてくる<ruby>冷<rt>つめ</rt></ruby>たく<ruby>湿<rt>しめ</rt></ruby>った<ruby>風<rt>かぜ</rt></ruby>を何といいますか？', ans:['やませ','ヤマセ'], hint:'農作物に被害を与えることがあります。' },
+  { type:'text', q:'<ruby>日本<rt>にほん</rt></ruby>の<ruby>太平洋側<rt>たいへいようがわ</rt></ruby>に<ruby>多<rt>おお</rt></ruby>く<ruby>降<rt>ふ</rt></ruby>る<ruby>雨<rt>あめ</rt></ruby>は、<ruby>主<rt>おも</rt></ruby>にどの<ruby>季節<rt>きせつ</rt></ruby>ですか？', ans:['夏','なつ'], hint:'梅雨や台風の影響で多くなります。' },
+  { type:'text', q:'<ruby>産業<rt>さんぎょう</rt></ruby>の<ruby>中心<rt>ちゅうしん</rt></ruby>が<ruby>工業<rt>こうぎょう</rt></ruby>から<ruby>情報<rt>じょうほう</rt></ruby>・サービス<ruby>業<rt>ぎょう</rt></ruby>に<ruby>変化<rt>へんか</rt></ruby>することを<ruby>漢字<rt>かんじ</rt></ruby>4<ruby>文字<rt>もじ</rt></ruby>で<ruby>答<rt>こた</rt></ruby>えなさい。', ans:['産業の高度化','産業高度化','サービス化','高度化'], hint:'第三次産業の割合が増えています。' },
+  { type:'text', q:'<ruby>米<rt>こめ</rt></ruby>づくりで、<ruby>苗<rt>なえ</rt></ruby>を<ruby>田<rt>た</rt></ruby>んぼに<ruby>移<rt>うつ</rt></ruby>すことを何といいますか？', ans:['田植え','田植','たうえ'], hint:'6月ごろに行われる農作業です。' },
+  { type:'text', q:'「<ruby>奥羽山脈<rt>おううさんみゃく</rt></ruby>」があるのは何<ruby>地方<rt>ちほう</rt></ruby>ですか？', ans:['東北地方','東北','とうほく'], hint:'青森から栃木まで続く日本最長の山脈です。' },
+];
+
+let questions = [];
+let current = 0;
+let correct = 0;
+let points = 0;
+let answered = false;
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - .5);
+}
+
+function startQuiz() {
+  questions = shuffle(ALL_QUESTIONS).slice(0, 30);
+  current = 0; correct = 0; points = 0; answered = false;
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  updateStatus();
+  loadQuestion();
+}
+
+function updateStatus() {
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('pointCount').textContent = points;
+  document.getElementById('qProgress').textContent = current + '/30';
+  document.getElementById('progressFill').style.width = (current / 30 * 100) + '%';
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('qNumLabel').textContent = `第 ${current + 1} 問`;
+  document.getElementById('questionText').innerHTML = q.q;
+  document.getElementById('feedbackArea').className = 'feedback';
+  document.getElementById('feedbackArea').textContent = '';
+  document.getElementById('nextBtn').className = 'next-btn';
+  document.getElementById('teachBtn').disabled = false;
+  document.getElementById('teachBtn').textContent = '🙋 おしえて！';
+  document.getElementById('teachArea').className = 'teach-area';
+  document.getElementById('teachArea').textContent = '';
+  document.getElementById('skipBtn').disabled = false;
+
+  const badge = document.getElementById('qTypeBadge');
+  const choicesArea = document.getElementById('choicesArea');
+  const textInputArea = document.getElementById('textInputArea');
+
+  if (q.type === 'choice') {
+    badge.textContent = '4択';
+    badge.className = 'q-badge';
+    choicesArea.style.display = 'flex';
+    textInputArea.style.display = 'none';
+
+    const labels = ['Ａ','Ｂ','Ｃ','Ｄ'];
+    const idxs = shuffle([0,1,2,3]);
+    choicesArea.innerHTML = '';
+    idxs.forEach((origIdx, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-label">${labels[i]}</span>${q.choices[origIdx]}`;
+      btn.onclick = () => selectChoice(origIdx, btn);
+      choicesArea.appendChild(btn);
+    });
+  } else {
+    badge.textContent = '記述';
+    badge.className = 'q-badge text-type';
+    choicesArea.style.display = 'none';
+    textInputArea.style.display = 'flex';
+    const inp = document.getElementById('textInput');
+    inp.value = '';
+    inp.className = 'text-input';
+    inp.disabled = false;
+    document.getElementById('submitBtn').disabled = false;
+    inp.onkeydown = (e) => { if (e.key === 'Enter') submitText(); };
+    setTimeout(() => inp.focus(), 100);
+  }
+
+  // card re-animate
+  const card = document.getElementById('quizCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'cardIn .35s cubic-bezier(.4,0,.2,1)';
+}
+
+function selectChoice(origIdx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.disabled = true);
+
+  if (origIdx === q.ans) {
+    btn.classList.add('correct');
+    correct++;
+    points += Math.round(50 / 30 * 10) / 10;
+    showFeedback(true, '正解！');
+  } else {
+    btn.classList.add('wrong');
+    const choicesHTML = document.querySelectorAll('.choice-btn');
+    choicesHTML.forEach(b => {
+      if (b.innerHTML.includes(q.choices[q.ans].replace(/<[^>]*>/g,''))) b.classList.add('correct');
+    });
+    showFeedback(false, `不正解。正しい答えは「${q.choices[q.ans].replace(/<[^>]*>/g,'')}」だよ。`);
+  }
+  updateStatus();
+  document.getElementById('teachBtn').disabled = true;
+  document.getElementById('skipBtn').disabled = true;
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function submitText() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('textInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  answered = true;
+  inp.disabled = true;
+  document.getElementById('submitBtn').disabled = true;
+
+  const norm = val.replace(/\s/g,'').toLowerCase();
+  const isCorrect = q.ans.some(a => a.replace(/\s/g,'').toLowerCase() === norm);
+
+  if (isCorrect) {
+    inp.classList.add('correct');
+    correct++;
+    points += Math.round(50 / 30 * 10) / 10;
+    showFeedback(true, '正解！');
+  } else {
+    inp.classList.add('wrong');
+    showFeedback(false, `不正解。正しい答えは「${q.ans[0]}」だよ。`);
+  }
+  updateStatus();
+  document.getElementById('teachBtn').disabled = true;
+  document.getElementById('skipBtn').disabled = true;
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function skipQuestion() {
+  if (answered) return;
+  answered = true;
+  document.getElementById('skipBtn').disabled = true;
+  document.getElementById('teachBtn').disabled = true;
+  const fb = document.getElementById('feedbackArea');
+  fb.textContent = '⏭ スキップしました。';
+  fb.className = 'feedback show wrong-fb';
+  document.getElementById('nextBtn').className = 'next-btn show';
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  const inp = document.getElementById('textInput');
+  if (inp) inp.disabled = true;
+  document.getElementById('submitBtn').disabled = true;
+}
+
+function showTeach() {
+  const q = questions[current];
+  const teachArea = document.getElementById('teachArea');
+  const teachBtn = document.getElementById('teachBtn');
+  teachArea.textContent = '📖 ' + q.explain;
+  teachArea.className = 'teach-area show';
+  teachBtn.textContent = '📖 かいせつを見た！';
+  teachBtn.disabled = true;
+}
+
+function showFeedback(isCorrect, msg) {
+  const fb = document.getElementById('feedbackArea');
+  fb.textContent = (isCorrect ? '⭕ ' : '❌ ') + msg;
+  fb.className = 'feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= 30) {
+    showResult();
+  } else {
+    updateStatus();
+    loadQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.style.display = 'block';
+
+  const perfect = correct === 30;
+  document.getElementById('resultTrophy').textContent = perfect ? '🏆' : correct >= 20 ? '🌟' : '📖';
+  document.getElementById('resultTitle').textContent = perfect ? 'パーフェクト！！' : correct >= 20 ? 'よくできました！' : 'もう一度挑戦しよう！';
+  document.getElementById('resultScore').innerHTML = `30問中 <strong>${correct}問</strong> 正解`;
+
+  const finalPoints = perfect ? 50 : Math.floor(correct / 30 * 50);
+  document.getElementById('pointBadge').textContent = `＋${finalPoints} ポイント！`;
+  document.getElementById('pointNote').textContent = perfect
+    ? '全問正解で満点ボーナス50ポイント獲得！'
+    : `正解数に応じて ${finalPoints} ポイントゲット！全問正解で50ポイントに挑戦しよう！`;
+}
+
+function restartQuiz() {
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('startScreen').style.display = 'block';
+}
+</script>
+</body>
+</html>
